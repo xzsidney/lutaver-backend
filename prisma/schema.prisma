@@ -1,0 +1,353 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ============================================
+// ENUMS - Auth
+// ============================================
+
+enum UserRole {
+  PLAYER
+  ADMIN
+  TEACHER
+}
+
+// ============================================
+// ENUMS - Character System
+// ============================================
+
+enum SchoolYear {
+  FUNDAMENTAL_1_1
+  FUNDAMENTAL_1_2
+  FUNDAMENTAL_1_3
+  FUNDAMENTAL_1_4
+  FUNDAMENTAL_1_5
+  FUNDAMENTAL_2_6
+  FUNDAMENTAL_2_7
+  FUNDAMENTAL_2_8
+  FUNDAMENTAL_2_9
+  HIGH_SCHOOL_1
+  HIGH_SCHOOL_2
+  HIGH_SCHOOL_3
+}
+
+enum AttributeCode {
+  STRENGTH
+  DEXTERITY
+  CONSTITUTION
+  INTELLIGENCE
+  CHARISMA
+  LUCK
+}
+
+enum ItemType {
+  CONSUMABLE
+  EQUIPMENT
+  MATERIAL
+  QUEST
+}
+
+enum ItemSubType {
+  // Consumables
+  POTION_HP
+  POTION_MANA
+  FOOD
+  BUFF_ITEM
+
+  // Equipment
+  WEAPON
+  ARMOR_HEAD
+  ARMOR_CHEST
+  ARMOR_LEGS
+  ARMOR_FEET
+  ACCESSORY
+
+  // Materials
+  MINERAL
+  HERB
+  ESSENCE
+
+  // Quest
+  QUEST_KEY
+  QUEST_LETTER
+}
+
+enum Rarity {
+  COMMON
+  UNCOMMON
+  RARE
+  EPIC
+  LEGENDARY
+  MYTHIC
+}
+
+enum PowerType {
+  PASSIVE
+  ACTIVE
+}
+
+enum DisciplineType {
+  MATHEMATICS
+  PORTUGUESE
+  HISTORY
+  GEOGRAPHY
+  SCIENCE
+  PHYSICS
+  CHEMISTRY
+  BIOLOGY
+  ENGLISH
+  ARTS
+  PHYSICAL_EDUCATION
+}
+
+enum EquipmentSlot {
+  HEAD
+  CHEST
+  LEGS
+  FEET
+  WEAPON
+  ACCESSORY_1
+  ACCESSORY_2
+}
+
+// ============================================
+// MODELS - Auth
+// ============================================
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         UserRole @default(PLAYER)
+  tokenVersion Int      @default(0) @map("token_version")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  isActive     Boolean  @default(true) @map("is_active")
+
+  refreshTokens RefreshToken[]
+  characters    Character[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  revokedAt DateTime? @map("revoked_at")
+  userAgent String?   @map("user_agent") @db.Text
+  ipAddress String?   @map("ip_address")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([tokenHash])
+  @@map("refresh_tokens")
+}
+
+// ============================================
+// MODELS - Character System
+// ============================================
+
+model Character {
+  id         String     @id @default(uuid())
+  userId     String     @map("user_id") // REMOVIDO UNIQUE: Suporta N personagens (ver GameConfig)
+  name       String
+  schoolYear SchoolYear @map("school_year")
+
+  // Progressão
+  level Int @default(1)
+  xp    Int @default(0)
+  coins Int @default(100)
+
+  // HP
+  maxHp     Int @default(100) @map("max_hp")
+  currentHp Int @default(100) @map("current_hp")
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  isActive  Boolean  @default(true) @map("is_active")
+
+  // Relações
+  user             User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  attributes       CharacterAttribute[]
+  powers           CharacterPower[]
+  inventory        InventorySlot[]
+  affinities       CharacterAffinity[]
+  shopTransactions ShopTransaction[]
+
+  @@index([userId])
+  @@map("characters")
+}
+
+model AttributeDefinition {
+  id          String        @id @default(uuid())
+  code        AttributeCode @unique
+  name        String
+  description String        @db.Text
+  minValue    Int           @default(1) @map("min_value")
+  maxValue    Int           @default(100) @map("max_value")
+
+  characterAttributes CharacterAttribute[]
+
+  @@map("attribute_definitions")
+}
+
+model CharacterAttribute {
+  id          String @id @default(uuid())
+  characterId String @map("character_id")
+  attributeId String @map("attribute_id")
+
+  baseValue  Int @map("base_value")
+  bonusValue Int @default(0) @map("bonus_value")
+
+  character Character           @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  attribute AttributeDefinition @relation(fields: [attributeId], references: [id])
+
+  @@unique([characterId, attributeId])
+  @@index([characterId])
+  @@map("character_attributes")
+}
+
+model Power {
+  id          String         @id @default(uuid())
+  name        String         @unique
+  discipline  DisciplineType
+  type        PowerType
+  rarity      Rarity
+  description String         @db.Text
+
+  manaCost Int?  @map("mana_cost")
+  cooldown Int?
+  effects  Json?
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  characterPowers CharacterPower[]
+
+  @@map("powers")
+}
+
+model CharacterPower {
+  id          String @id @default(uuid())
+  characterId String @map("character_id")
+  powerId     String @map("power_id")
+
+  level      Int     @default(1)
+  isEquipped Boolean @default(false) @map("is_equipped")
+  slot       Int?
+
+  learnedAt DateTime @default(now()) @map("learned_at")
+
+  character Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  power     Power     @relation(fields: [powerId], references: [id])
+
+  @@unique([characterId, powerId])
+  @@index([characterId])
+  @@map("character_powers")
+}
+
+model Item {
+  id          String      @id @default(uuid())
+  name        String      @unique
+  type        ItemType
+  subType     ItemSubType @map("sub_type")
+  rarity      Rarity
+  description String      @db.Text
+
+  price     Int     @default(0)
+  isBuyable Boolean @default(false) @map("is_buyable")
+
+  stackable Boolean @default(false)
+  maxStack  Int     @default(1) @map("max_stack")
+  effects   Json?
+
+  requiredLevel Int?           @map("required_level")
+  equipmentSlot EquipmentSlot? @map("equipment_slot")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  inventorySlots   InventorySlot[]
+  shopTransactions ShopTransaction[]
+
+  @@map("items")
+}
+
+model InventorySlot {
+  id          String @id @default(uuid())
+  characterId String @map("character_id")
+  itemId      String @map("item_id")
+
+  quantity     Int            @default(1)
+  isEquipped   Boolean        @default(false) @map("is_equipped")
+  equippedSlot EquipmentSlot? @map("equipped_slot")
+
+  obtainedAt DateTime @default(now()) @map("obtained_at")
+
+  character Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  item      Item      @relation(fields: [itemId], references: [id])
+
+  @@index([characterId])
+  @@index([itemId])
+  @@map("inventory_slots")
+}
+
+// ============================================
+// MODELS - Affinity System
+// ============================================
+
+model Discipline {
+  id          String     @id @default(uuid())
+  code        String     @unique // e.g., MATH, PORTUGUESE
+  name        String // e.g., Matemática, Português
+  schoolYear  SchoolYear @map("school_year")
+  description String?    @db.Text
+
+  affinities CharacterAffinity[]
+
+  @@map("disciplines")
+}
+
+model CharacterAffinity {
+  id           String @id @default(uuid())
+  characterId  String @map("character_id")
+  disciplineId String @map("discipline_id")
+
+  percentage Int @default(0) // 0 to 100
+
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  character  Character  @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  discipline Discipline @relation(fields: [disciplineId], references: [id], onDelete: Cascade)
+
+  @@unique([characterId, disciplineId])
+  @@index([characterId])
+  @@map("character_affinities")
+}
+
+model ShopTransaction {
+  id          String   @id @default(uuid())
+  characterId String   @map("character_id")
+  itemId      String   @map("item_id")
+  quantity    Int
+  totalPrice  Int      @map("total_price")
+  purchasedAt DateTime @default(now()) @map("purchased_at")
+
+  character Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  item      Item      @relation(fields: [itemId], references: [id])
+
+  @@index([characterId])
+  @@map("shop_transactions")
+}
