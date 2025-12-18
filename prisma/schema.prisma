@@ -118,6 +118,16 @@ enum EquipmentSlot {
   ACCESSORY_2
 }
 
+enum RoomType {
+  CLASSROOM
+  CAFETERIA
+  LIBRARY
+  INFIRMARY
+  COURTYARD
+  BOSS_ROOM
+}
+
+
 // ============================================
 // MODELS - Auth
 // ============================================
@@ -350,4 +360,37 @@ model ShopTransaction {
 
   @@index([characterId])
   @@map("shop_transactions")
+}
+
+// ============================================
+// MODELS - Tower System
+// ============================================
+
+model TowerFloor {
+  id          String     @id @default(uuid())
+  floorNumber Int        @unique @map("floor_number")
+  name        String
+  schoolYear  SchoolYear @map("school_year")
+  mapWidth    Int        @map("map_width")
+  mapHeight   Int        @map("map_height")
+  createdAt   DateTime   @default(now()) @map("created_at")
+
+  rooms Room[]
+
+  @@map("tower_floors")
+}
+
+model Room {
+  id      String   @id @default(uuid())
+  floorId String   @map("floor_id")
+  type    RoomType
+  name    String
+  x       Int
+  y       Int
+  radius  Int
+
+  floor TowerFloor @relation(fields: [floorId], references: [id], onDelete: Cascade)
+
+  @@index([floorId])
+  @@map("rooms")
 }

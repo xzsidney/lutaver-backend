@@ -5,6 +5,7 @@ import { teacherResolvers } from '../modules/teacher/teacher.resolvers';
 import { characterResolvers } from '../modules/character/character.resolvers';
 import { affinityResolvers } from '../modules/affinity/affinity.resolvers';
 import { shopResolvers } from '../modules/shop/shop.resolvers';
+import { towerResolvers } from './resolvers/tower.resolvers';
 
 export const resolvers = {
     Query: {
@@ -14,6 +15,7 @@ export const resolvers = {
         ...teacherResolvers.Query,
         ...characterResolvers.Query,
         ...shopResolvers.Query,
+        ...towerResolvers.Query,
         // ...affinityResolvers.Query, 
     },
     Mutation: {

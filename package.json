@@ -10,11 +10,17 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:generate": "prisma generate",
     "prisma:studio": "prisma studio",
+    "prisma:seed": "tsx prisma/seed.ts",
     "lint": "eslint src --ext .ts",
     "format": "prettier --write \"src/**/*.ts\"",
     "test": "jest"
   },
-  "keywords": ["graphql", "authentication", "education", "gamification"],
+  "keywords": [
+    "graphql",
+    "authentication",
+    "education",
+    "gamification"
+  ],
   "author": "LUTAVER Team",
   "license": "MIT",
   "dependencies": {

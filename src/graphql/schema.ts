@@ -1,6 +1,7 @@
 import { characterTypeDefs } from './characterSchema';
 import { affinityTypeDefs } from '../modules/affinity/affinity.schema';
 import { shopTypeDefs } from '../modules/shop/shop.schema';
+import { towerTypeDefs } from './schemas/tower.schema';
 
 export const typeDefs = `#graphql
   type User {
@@ -103,4 +104,5 @@ export const typeDefs = `#graphql
   ${characterTypeDefs}
   ${affinityTypeDefs}
   ${shopTypeDefs}
+  ${towerTypeDefs}
 `;
