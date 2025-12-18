@@ -16,6 +16,9 @@ export const towerResolvers = {
             const rooms = await prisma.room.findMany({
                 where: {
                     floorId: floorId
+                },
+                include: {
+                    activities: true
                 }
             });
             return rooms;

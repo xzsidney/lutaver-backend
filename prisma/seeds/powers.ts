@@ -1,4 +1,4 @@
-import { PrismaClient, Discipline, PowerType, Rarity } from '@prisma/client';
+import { PrismaClient, DisciplineType, PowerType, Rarity } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -8,7 +8,7 @@ export async function seedPowers() {
     const powers = [
         {
             name: 'Raio de Fogo',
-            discipline: Discipline.MATHEMATICS,
+            discipline: DisciplineType.MATHEMATICS,
             type: PowerType.ACTIVE,
             rarity: Rarity.COMMON,
             description: 'Lança um raio de fogo que causa dano baseado em Inteligência',
@@ -18,7 +18,7 @@ export async function seedPowers() {
         },
         {
             name: 'Escudo Arcano',
-            discipline: Discipline.MATHEMATICS,
+            discipline: DisciplineType.MATHEMATICS,
             type: PowerType.ACTIVE,
             rarity: Rarity.UNCOMMON,
             description: 'Cria um escudo mágico que absorve dano',
@@ -28,7 +28,7 @@ export async function seedPowers() {
         },
         {
             name: 'Poder da Palavra',
-            discipline: Discipline.PORTUGUESE,
+            discipline: DisciplineType.PORTUGUESE,
             type: PowerType.PASSIVE,
             rarity: Rarity.COMMON,
             description: 'Aumenta o Carisma permanentemente',
@@ -36,7 +36,7 @@ export async function seedPowers() {
         },
         {
             name: 'Análise Química',
-            discipline: Discipline.CHEMISTRY,
+            discipline: DisciplineType.CHEMISTRY,
             type: PowerType.ACTIVE,
             rarity: Rarity.RARE,
             description: 'Identifica pontos fracos do inimigo',
@@ -46,7 +46,7 @@ export async function seedPowers() {
         },
         {
             name: 'Velocidade da Luz',
-            discipline: Discipline.PHYSICS,
+            discipline: DisciplineType.PHYSICS,
             type: PowerType.ACTIVE,
             rarity: Rarity.EPIC,
             description: 'Aumenta drasticamente a Destreza temporariamente',

@@ -127,6 +127,13 @@ enum RoomType {
   BOSS_ROOM
 }
 
+enum ActivityType {
+  QUIZ
+  MISSION
+  BATTLE
+  INTERACTION
+}
+
 
 // ============================================
 // MODELS - Auth
@@ -197,6 +204,7 @@ model Character {
   inventory        InventorySlot[]
   affinities       CharacterAffinity[]
   shopTransactions ShopTransaction[]
+  activityCompletions ActivityCompletion[]
 
   @@index([userId])
   @@map("characters")
@@ -385,12 +393,45 @@ model Room {
   floorId String   @map("floor_id")
   type    RoomType
   name    String
+  description String? @db.Text
   x       Int
   y       Int
   radius  Int
+  mapLayout Json?    @map("map_layout")
 
   floor TowerFloor @relation(fields: [floorId], references: [id], onDelete: Cascade)
+  activities Activity[]
 
   @@index([floorId])
   @@map("rooms")
+}
+
+model Activity {
+  id          String       @id @default(uuid())
+  roomId      String       @map("room_id")
+  type        ActivityType
+  x           Int
+  y           Int
+  config      Json?
+
+  room        Room         @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  completions ActivityCompletion[]
+
+  @@index([roomId])
+  @@map("activities")
+}
+
+model ActivityCompletion {
+  id          String   @id @default(uuid())
+  activityId  String   @map("activity_id")
+  characterId String   @map("character_id")
+  score       Int      @default(0)
+  completedAt DateTime @default(now()) @map("completed_at")
+
+  activity  Activity  @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  character Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@index([activityId])
+  @@index([characterId])
+  @@map("activity_completions")
 }

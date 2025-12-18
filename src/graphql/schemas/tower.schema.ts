@@ -13,9 +13,21 @@ export const towerTypeDefs = `
         floorId: ID!
         type: String!
         name: String!
+        description: String
         x: Int!
         y: Int!
         radius: Int!
+        mapLayout: JSON
+        activities: [Activity!]!
+    }
+
+    type Activity {
+        id: ID!
+        roomId: ID!
+        type: String!
+        x: Int!
+        y: Int!
+        config: JSON
     }
 
     extend type Query {
