@@ -34,8 +34,9 @@ export const towerResolvers = {
                 // Debug logs
                 console.log(`[startTowerFloorRun] Starting for floor ${floorId}, char ${characterId}`);
 
-                // 1. Generate Deterministic Seed
-                const seed = Math.random().toString(36).substring(2, 15);
+                // 1. Generate FIXED Deterministic Seed per floor
+                // Same floorId = Same seed = Same map layout
+                const seed = `floor_${floorId}_layout`;
 
                 // Check prisma model
                 if (!prisma.towerFloorRun) {
