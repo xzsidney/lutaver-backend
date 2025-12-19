@@ -30,8 +30,26 @@ export const towerTypeDefs = `
         config: JSON
     }
 
+    type TowerFloorRunPayload {
+        runId: ID!
+        seed: String!
+        floor: TowerFloor!
+        rooms: [Room!]!
+    }
+
+    type EnterRoomResult {
+        ok: Boolean!
+        room: Room!
+        activities: [Activity!]!
+    }
+
     extend type Query {
         towerFloors: [TowerFloor!]!
         floorRooms(floorId: ID!): [Room!]!
+    }
+
+    extend type Mutation {
+        startTowerFloorRun(floorId: ID!, characterId: ID!): TowerFloorRunPayload!
+        enterRoom(runId: ID!, roomId: ID!): EnterRoomResult!
     }
 `;

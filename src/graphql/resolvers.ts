@@ -24,6 +24,7 @@ export const resolvers = {
         ...affinityResolvers.Mutation,
         ...shopResolvers.Mutation,
         ...adminResolvers.Mutation,
+        ...towerResolvers.Mutation,
     },
     // Field resolvers
     Character: {
