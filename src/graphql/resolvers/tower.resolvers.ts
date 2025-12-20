@@ -26,6 +26,16 @@ export const towerResolvers = {
             });
             return rooms;
         },
+        floorBySchoolYear: async (_: any, { schoolYear }: { schoolYear: string }) => {
+            console.log('🔍 [QUERY] floorBySchoolYear called with:', schoolYear);
+            const floor = await prisma.towerFloor.findFirst({
+                where: {
+                    schoolYear: schoolYear as any
+                }
+            });
+            console.log('✅ [QUERY] floorBySchoolYear result:', floor);
+            return floor;
+        },
     },
     Mutation: {
         startTowerFloorRun: async (_: any, { floorId, characterId }: { floorId: string, characterId: string }) => {

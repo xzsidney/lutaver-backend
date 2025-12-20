@@ -46,6 +46,7 @@ export const towerTypeDefs = `
     extend type Query {
         towerFloors: [TowerFloor!]!
         floorRooms(floorId: ID!): [Room!]!
+        floorBySchoolYear(schoolYear: String!): TowerFloor
     }
 
     extend type Mutation {

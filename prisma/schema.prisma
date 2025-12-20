@@ -396,9 +396,6 @@ model Room {
   type    RoomType
   name    String
   description String? @db.Text
-  x       Int
-  y       Int
-  radius  Int
   mapLayout Json?    @map("map_layout")
 
   floor TowerFloor @relation(fields: [floorId], references: [id], onDelete: Cascade)
@@ -454,4 +451,3 @@ model TowerFloorRun {
   @@index([characterId])
   @@map("tower_floor_runs")
 }
-
